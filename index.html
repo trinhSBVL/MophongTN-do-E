@@ -211,12 +211,12 @@
             if (dL == 0) return { title: "TRẠNG THÁI NGHỈ", text: "Chưa gia tải.", color: "#475569", bg: "#f1f5f9" };
             if (dL <= limit.L_elas) return { 
                 title: "GIAI ĐOẠN ĐÀN HỒI", 
-                text: "Tỉ lệ tuyến tính. Tuân theo công thức định luật Hooke (σ = E.ε).", 
+                text: "P tỉ lệ với ΔL. ĐL Hooke (σ = E.ε).", 
                 color: "#15803d", bg: "#dcfce7" 
             };
             if (dL <= limit.L_yield) return { 
                 title: "GIAI ĐOẠN CHẢY DẺO", 
-                text: "Lực gần như không đổi nhưng mẫu vẫn tiếp tục bị giãn dài.", 
+                text: "P không đổi nhưng mẫu vẫn tiếp tục bị giãn dài.", 
                 color: "#b45309", bg: "#fef3c7" 
             };
             if (dL <= limit.L_hard) return { 
@@ -226,7 +226,7 @@
             };
             if (dL <= limit.L_frac) return { 
                 title: "GIAI ĐOẠN PHÁ HỦY", 
-                text: "Lực giảm. Xuất hiện vị trí co thắt eo và các vết xiên 45 độ.", 
+                text: "Lực giảm. Xuất hiện vị trí co thắt và các vết xiên 45 độ.", 
                 color: "#b91c1c", bg: "#fee2e2" 
             };
             return { 
