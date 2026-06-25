@@ -15,14 +15,15 @@
         .left-panel { width: 33.33%; position: relative; background: #eef2f6; border-right: 2px solid #cbd5e1; display: flex; flex-direction: column; }
         .right-panel { width: 66.67%; position: relative; background: #ffffff; display: flex; flex-direction: row;}
         .graph-container { flex-grow: 1; position: relative; padding: 10px; display: flex; }
-        .control-panel { width: 190px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 15px; display: flex; flex-direction: column; gap: 15px; z-index: 10; }
+        .control-panel { width: 190px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 15px; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
         
         .info-box { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.15); backdrop-filter: blur(1px); padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid rgba(203,213,225,0.3); z-index: 10; width: calc(100% - 20px); }
         .info-box h3 { text-shadow: 0px 1px 2px rgba(255,255,255,0.8); }
         .input-group { margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 500; text-shadow: 0px 1px 2px rgba(255,255,255,0.8); }
-        .input-group input { width: 70px; padding: 2px 5px; border: 1px solid #94a3b8; border-radius: 4px; text-align: right; background: rgba(255,255,255,0.9); text-shadow: none; }
+        .input-group input { width: 85px; padding: 2px 5px; border: 1px solid #94a3b8; border-radius: 4px; text-align: right; background: rgba(255,255,255,0.9); text-shadow: none; font-size: 13px; }
+        .input-group input:read-only { background: #e2e8f0; color: #475569; }
         
-        canvas { display: block; width: 90%; height: 90%; }
+        canvas { display: block; width: 100%; height: 100%; }
         
         .btn { padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; transition: all 0.2s; border: none; color: white;}
         .btn-start { background-color: #2563eb; }
@@ -31,7 +32,7 @@
         .btn-pause:hover { background-color: #d97706; }
         .btn-reset { background-color: #ef4444; }
         .btn-reset:hover { background-color: #dc2626; }
-        .btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .btn:disabled { background-color: #94a3b8; cursor: not-allowed; opacity: 0.7; }
 
         .annotations-overlay { position: absolute; right: 20px; bottom: 75px; display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none; z-index: 15; }
         .annotation { background: rgba(255, 255, 255, 0.95); border: 2px solid; padding: 8px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 175px; line-height: 1.3; opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -56,11 +57,11 @@
                 <h3 class="font-bold text-center text-sm text-blue-800 border-b border-blue-200 pb-1">THÔNG TIN MẪU THỬ THÉP MỀM CT3</h3>
                 <div class="input-group mt-2 text-blue-900">
                     <label for="inputD">Đường kính d<sub>0</sub> (mm):</label>
-                    <input type="number" id="inputD" value="10.00" min="9" max="11" step="0.05">
+                    <input type="text" id="inputD" value="" readonly placeholder="Chưa đo...">
                 </div>
                 <div class="input-group text-blue-900">
                     <label for="inputL0">Chiều dài L<sub>0</sub> (mm):</label>
-                    <input type="number" id="inputL0" value="100.0" min="100" max="120" step="0.1">
+                    <input type="text" id="inputL0" value="" readonly placeholder="Chưa đo...">
                 </div>
             </div>
             <canvas id="canvasSpecimen"></canvas>
@@ -88,12 +89,22 @@
             </div>
 
             <div class="control-panel shadow-inner">
-                <h3 class="font-bold text-center text-gray-700 uppercase text-sm border-b pb-2">Bảng Gia Tải</h3>
-                <button id="btnStart" class="btn btn-start">BẮT ĐẦU</button>
+                <h3 class="font-bold text-center text-gray-700 uppercase text-sm border-b pb-2">Bảng Điều Khiển</h3>
+                <button id="btnStart" class="btn btn-start" disabled>BẮT ĐẦU</button>
                 <button id="btnPause" class="btn btn-pause" disabled>TẠM DỪNG</button>
                 <button id="btnReset" class="btn btn-reset">LÀM LẠI</button>
                 
-                <div class="mt-4">
+                <!-- Bố trí 2 nút tương tác ở khu vực giữa thanh điều khiển (right-panel) -->
+                <div class="my-auto flex flex-col gap-3 py-3 border-y border-gray-300">
+                    <button id="btnMeasureBefore" class="btn bg-teal-600 hover:bg-teal-700 text-[12px] leading-tight py-2.5 shadow-md">
+                        1. ĐO KÍCH THƯỚC<br>TRƯỚC KHI KÉO
+                    </button>
+                    <button id="btnMeasureAfter" class="btn bg-purple-600 hover:bg-purple-700 text-[12px] leading-tight py-2.5 shadow-md" disabled>
+                        2. ĐO KÍCH THƯỚC<br>SAU KHI KÉO
+                    </button>
+                </div>
+
+                <div class="mt-2">
                     <label class="block text-[11px] font-semibold text-gray-600 mb-1">Tốc độ gia tải (N/s):</label>
                     <div class="flex items-center gap-1">
                         <input type="range" id="speedSlider" min="50" max="5000" value="1000" step="50" class="w-full">
@@ -122,7 +133,9 @@
         scaleF: 1,    
         scaleL: 1,
         breakRatio: 0.5,
-        yAxisMax: 40000 
+        yAxisMax: 40000,
+        isMeasuredBefore: false, // Trạng thái đo lần 1
+        isMeasuredAfter: false   // Trạng thái đo lần 2
     };
 
     const CONSTANTS = {
@@ -139,6 +152,10 @@
     const btnStart = document.getElementById('btnStart');
     const btnPause = document.getElementById('btnPause');
     const btnReset = document.getElementById('btnReset');
+    
+    const btnMeasureBefore = document.getElementById('btnMeasureBefore');
+    const btnMeasureAfter = document.getElementById('btnMeasureAfter');
+    
     const speedSlider = document.getElementById('speedSlider');
     const valSpeed = document.getElementById('valSpeed');
     const valP = document.getElementById('valP');
@@ -156,32 +173,12 @@
     // --- MÔ HÌNH TOÁN HỌC ĐƯỜNG CONG CT3 ---
     function getPBase(x) {
         if (x === 0) return 0;
-        // 1. Ổn định ngàm kẹp
-        if (x <= 0.3) {
-            return 250 * Math.pow(x / 0.3, 2);
-        }
-        // 2. Miền đàn hồi
-        else if (x <= 0.46) {
-            return 250 + (25000 - 250) * ((x - 0.3) / 0.16);
-        }
-        // 2.5. Chuyển tiếp Đàn hồi -> Chảy dẻo
-        else if (x <= 0.5) {
-            let t = (x - 0.46) / 0.04; 
-            return 25000 + 600 * t * (2 - t); 
-        }
-        // 3. Miền chảy dẻo
-        else if (x <= 4.5) {
-            const freq = 12 * Math.PI * 2 / (4.5 - 0.5);
-            return 25600 + 300 * Math.sin((x - 0.5) * freq);
-        }
-        // 4. Miền củng cố
-        else if (x <= 20) {
-            return 38000 - 51.6129 * Math.pow(x - 20, 2);
-        }
-        // 5. Miền phá huỷ
-        else if (x <= 25) {
-            return 38000 - 472 * Math.pow(x - 20, 2);
-        }
+        if (x <= 0.3) return 250 * Math.pow(x / 0.3, 2);
+        else if (x <= 0.46) return 250 + (25000 - 250) * ((x - 0.3) / 0.16);
+        else if (x <= 0.5) { let t = (x - 0.46) / 0.04; return 25000 + 600 * t * (2 - t); }
+        else if (x <= 4.5) return 25600 + 300 * Math.sin((x - 0.5) * (12 * Math.PI * 2 / 4));
+        else if (x <= 20) return 38000 - 51.6129 * Math.pow(x - 20, 2);
+        else if (x <= 25) return 38000 - 472 * Math.pow(x - 20, 2);
         return 0; 
     }
 
@@ -218,7 +215,6 @@
         ctx.fill();
     }
 
-    // --- VẼ NGÀM KẸP 3D ---
     function draw3DGrip(ctx, cx, gripEdgeY, isTop) {
         const gw = 110, gh = 65;
         const yStart = isTop ? gripEdgeY - gh : gripEdgeY;
@@ -228,20 +224,13 @@
         grd.addColorStop(0.5, '#94a3b8'); grd.addColorStop(0.8, '#475569'); 
         grd.addColorStop(1, '#1e293b');
 
-        ctx.fillStyle = grd;
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2;
-
-        ctx.beginPath();
-        ctx.rect(cx - gw/2, yStart, gw, gh);
-        ctx.fill(); ctx.stroke();
+        ctx.fillStyle = grd; ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.rect(cx - gw/2, yStart, gw, gh); ctx.fill(); ctx.stroke();
 
         const jw = 48, jh = 35;
         const jy = isTop ? gripEdgeY - jh : gripEdgeY;
-        
         const jgrd = ctx.createLinearGradient(cx - jw/2, 0, cx + jw/2, 0);
         jgrd.addColorStop(0, '#94a3b8'); jgrd.addColorStop(0.5, '#f8fafc'); jgrd.addColorStop(1, '#64748b');
-        
         ctx.fillStyle = jgrd;
         
         ctx.beginPath();
@@ -268,7 +257,6 @@
         ctx.beginPath(); ctx.arc(cx + 35, yStart + gh/2, 4, 0, Math.PI*2); ctx.fill();
     }
 
-    // --- ĐỒ HỌA PANEL TRÁI ---
     function drawSpecimenCanvas() {
         const w = canvasSpecimen.width;
         const h = canvasSpecimen.height;
@@ -281,7 +269,6 @@
         const topGripY = h * 0.15;
         const baseBottomGripY = h * 0.70; 
         
-        // Tính toán khoảng cách vật lý của mẫu
         const L_total = 20 + 15 + state.L0 + 15 + 20; 
         const pxPerMmBase = (baseBottomGripY - topGripY) / L_total;
         
@@ -290,7 +277,6 @@
         
         const topExtY = topGripY + extPx;
         const topTransY = topExtY + transPx;
-        
         const baseBotTransY = topTransY + state.L0 * pxPerMmBase;
         
         const elongationPx = realDeltaL * pxPerMmBase;
@@ -301,18 +287,15 @@
         const middleLen = botTransY - topTransY;
         const neckY = topTransY + middleLen * state.breakRatio; 
 
-        // Chiều ngang
         const dPx = (state.d / 10) * 26; 
         const D_px = (14 / 10) * 26; 
 
         const topDist = neckY - topTransY;
         const botDist = botTransY - neckY;
 
-        // Vẽ Thước đo dịch sang phải 10mm
         const rulerX = centerX + 65; 
         drawRuler(ctxS, rulerX, topTransY, baseBotTransY, botTransY, pxPerMmBase);
 
-        // Tính toán co thắt
         let neckFactor = 1;
         if (state.xBase > 20) {
             const progress = (state.xBase - 20) / 5;
@@ -322,12 +305,9 @@
         const neckWidth = dPx * neckFactor;
         const isBroken = state.xBase >= CONSTANTS.MAX_X_BASE;
 
-        // Gradient tạo khối 3D cho mẫu thép
         const specGrd = ctxS.createLinearGradient(centerX - D_px/2, 0, centerX + D_px/2, 0);
-        specGrd.addColorStop(0, '#475569');
-        specGrd.addColorStop(0.25, '#cbd5e1');
-        specGrd.addColorStop(0.5, '#94a3b8');
-        specGrd.addColorStop(0.75, '#f1f5f9');
+        specGrd.addColorStop(0, '#475569'); specGrd.addColorStop(0.25, '#cbd5e1');
+        specGrd.addColorStop(0.5, '#94a3b8'); specGrd.addColorStop(0.75, '#f1f5f9');
         specGrd.addColorStop(1, '#334155');
 
         ctxS.fillStyle = specGrd; 
@@ -336,53 +316,41 @@
 
         if (!isBroken) {
             ctxS.beginPath();
-            // Trái - Từ trên xuống
-            ctxS.moveTo(centerX - D_px/2, topGripY);
-            ctxS.lineTo(centerX - D_px/2, topExtY);
+            ctxS.moveTo(centerX - D_px/2, topGripY); ctxS.lineTo(centerX - D_px/2, topExtY);
             ctxS.bezierCurveTo(centerX - D_px/2, topExtY + transPx/2, centerX - dPx/2, topExtY + transPx/2, centerX - dPx/2, topTransY);
             ctxS.bezierCurveTo(centerX - dPx/2, topTransY + topDist*0.6, centerX - neckWidth/2, neckY - topDist*0.2, centerX - neckWidth/2, neckY);
             ctxS.bezierCurveTo(centerX - neckWidth/2, neckY + botDist*0.2, centerX - dPx/2, botTransY - botDist*0.6, centerX - dPx/2, botTransY);
             ctxS.bezierCurveTo(centerX - dPx/2, botExtY - transPx/2, centerX - D_px/2, botExtY - transPx/2, centerX - D_px/2, botExtY);
             ctxS.lineTo(centerX - D_px/2, bottomGripY);
-            
-            // Phải - Từ dưới lên
-            ctxS.lineTo(centerX + D_px/2, bottomGripY);
-            ctxS.lineTo(centerX + D_px/2, botExtY);
+            ctxS.lineTo(centerX + D_px/2, bottomGripY); ctxS.lineTo(centerX + D_px/2, botExtY);
             ctxS.bezierCurveTo(centerX + D_px/2, botExtY - transPx/2, centerX + dPx/2, botExtY - transPx/2, centerX + dPx/2, botTransY);
             ctxS.bezierCurveTo(centerX + dPx/2, botTransY - botDist*0.6, centerX + neckWidth/2, neckY + botDist*0.2, centerX + neckWidth/2, neckY);
             ctxS.bezierCurveTo(centerX + neckWidth/2, neckY - topDist*0.2, centerX + dPx/2, topTransY + topDist*0.6, centerX + dPx/2, topTransY);
             ctxS.bezierCurveTo(centerX + dPx/2, topExtY + transPx/2, centerX + D_px/2, topExtY + transPx/2, centerX + D_px/2, topExtY);
-            ctxS.lineTo(centerX + D_px/2, topGripY);
-            ctxS.closePath();
+            ctxS.lineTo(centerX + D_px/2, topGripY); ctxS.closePath();
             ctxS.fill(); ctxS.stroke();
         } else {
             const gap = 18; 
             const offset45 = neckWidth / 2;
 
-            // Nửa trên bị đứt
             ctxS.beginPath();
-            ctxS.moveTo(centerX - D_px/2, topGripY);
-            ctxS.lineTo(centerX - D_px/2, topExtY);
+            ctxS.moveTo(centerX - D_px/2, topGripY); ctxS.lineTo(centerX - D_px/2, topExtY);
             ctxS.bezierCurveTo(centerX - D_px/2, topExtY + transPx/2, centerX - dPx/2, topExtY + transPx/2, centerX - dPx/2, topTransY);
             ctxS.bezierCurveTo(centerX - dPx/2, topTransY + topDist*0.5, centerX - neckWidth/2, neckY - gap/2 - offset45, centerX - neckWidth/2, neckY - gap/2);
             ctxS.lineTo(centerX + neckWidth/2, (neckY - gap/2) - offset45);
             ctxS.bezierCurveTo(centerX + neckWidth/2, neckY - gap/2 - offset45, centerX + dPx/2, topTransY + topDist*0.5, centerX + dPx/2, topTransY);
             ctxS.bezierCurveTo(centerX + dPx/2, topExtY + transPx/2, centerX + D_px/2, topExtY + transPx/2, centerX + D_px/2, topExtY);
-            ctxS.lineTo(centerX + D_px/2, topGripY);
-            ctxS.closePath();
+            ctxS.lineTo(centerX + D_px/2, topGripY); ctxS.closePath();
             ctxS.fill(); ctxS.stroke();
 
-            // Nửa dưới bị đứt
             ctxS.beginPath();
-            ctxS.moveTo(centerX - D_px/2, bottomGripY);
-            ctxS.lineTo(centerX - D_px/2, botExtY);
+            ctxS.moveTo(centerX - D_px/2, bottomGripY); ctxS.lineTo(centerX - D_px/2, botExtY);
             ctxS.bezierCurveTo(centerX - D_px/2, botExtY - transPx/2, centerX - dPx/2, botExtY - transPx/2, centerX - dPx/2, botTransY);
             ctxS.bezierCurveTo(centerX - dPx/2, botTransY - botDist*0.5, centerX - neckWidth/2, neckY + gap/2 + offset45, centerX - neckWidth/2, (neckY + gap/2) + offset45);
             ctxS.lineTo(centerX + neckWidth/2, neckY + gap/2);
             ctxS.bezierCurveTo(centerX + neckWidth/2, neckY + gap/2, centerX + dPx/2, botTransY - botDist*0.5, centerX + dPx/2, botTransY);
             ctxS.bezierCurveTo(centerX + dPx/2, botExtY - transPx/2, centerX + D_px/2, botExtY - transPx/2, centerX + D_px/2, botExtY);
-            ctxS.lineTo(centerX + D_px/2, bottomGripY);
-            ctxS.closePath();
+            ctxS.lineTo(centerX + D_px/2, bottomGripY); ctxS.closePath();
             ctxS.fill(); ctxS.stroke();
         }
 
@@ -393,7 +361,8 @@
         ctxS.textAlign = "right"; 
         const textXLeft = centerX - D_px/2 - 20;
         
-        if (state.xBase === 0) {
+        // CHỈ HIỆN KÍCH THƯỚC ĐẦU NẾU ĐÃ BẤM ĐO LẦN 1
+        if (state.xBase === 0 && state.isMeasuredBefore) {
             const yTopExt = topGripY + extPx/2;
             ctxS.fillStyle = '#1e293b';
             ctxS.fillText(`D = 14 mm`, textXLeft, yTopExt);
@@ -405,7 +374,8 @@
             drawLeaderLine(ctxS, textXLeft, yTopLabel, centerX - dPx/2, yTopLabel, '#1e3a8a', true);
         }
 
-        if (isBroken) {
+        // CHỈ HIỆN KÍCH THƯỚC ĐỨT NẾU ĐÃ BẤM ĐO LẦN 2
+        if (isBroken && state.isMeasuredAfter) {
             const d1_val = state.d * 0.911;
             const yBotLabel = botTransY - 20;
             ctxS.fillStyle = '#d97706';
@@ -424,57 +394,40 @@
             drawArrow(ctxS, centerX, topGripY - 70, centerX, topGripY - 105);
             drawArrow(ctxS, centerX, bottomGripY + 70, centerX, bottomGripY + 105);
 
-            ctxS.textAlign = "left";
-            ctxS.font = "bold 16px Arial";
-            ctxS.fillText("P", centerX + 15, topGripY - 85);
-            ctxS.fillText("P", centerX + 15, bottomGripY + 90);
+            ctxS.textAlign = "left"; ctxS.font = "bold 16px Arial";
+            ctxS.fillText("P", centerX + 15, topGripY - 85); ctxS.fillText("P", centerX + 15, bottomGripY + 90);
             
             const geometricMidY = topGripY + (bottomGripY - topGripY)/2;
-            ctxS.fillStyle = 'rgba(255,255,255,0.9)';
-            ctxS.strokeStyle = '#2563eb';
-            ctxS.fillRect(10, geometricMidY - 20, 115, 35);
-            ctxS.strokeRect(10, geometricMidY - 20, 115, 35);
-            ctxS.fillStyle = '#000';
-            ctxS.font = "bold 13px Arial";
+            ctxS.fillStyle = 'rgba(255,255,255,0.9)'; ctxS.strokeStyle = '#2563eb';
+            ctxS.fillRect(10, geometricMidY - 20, 115, 35); ctxS.strokeRect(10, geometricMidY - 20, 115, 35);
+            ctxS.fillStyle = '#000'; ctxS.font = "bold 13px Arial";
             ctxS.fillText(`P = ${currentP.toFixed(0)} N`, 16, geometricMidY + 2);
         }
     }
 
     function drawRuler(ctx, x, topY, baseY, currentY, pxPerMm) {
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x, topY - 10);
-        ctx.lineTo(x, Math.max(currentY + 30, baseY + 65)); 
-        ctx.stroke();
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, topY - 10); ctx.lineTo(x, Math.max(currentY + 30, baseY + 65)); ctx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(x - 5, topY); ctx.lineTo(x + 12, topY);
+        ctx.beginPath(); ctx.moveTo(x - 5, topY); ctx.lineTo(x + 12, topY);
         ctx.moveTo(x - 5, baseY); ctx.lineTo(x + 12, baseY);
         ctx.lineWidth = 2; ctx.strokeStyle = '#2563eb'; ctx.stroke();
-        ctx.fillStyle = '#2563eb'; ctx.textAlign = "left"; ctx.font = "bold 11px Arial";
-        ctx.fillText("Vạch L0", x + 16, (topY + baseY)/2 + 4);
+        ctx.fillStyle = '#2563eb'; ctx.textAlign = "left"; ctx.font = "bold 11px Arial"; ctx.fillText("Vạch L0", x + 16, (topY + baseY)/2 + 4);
 
-        ctx.lineWidth = 1; ctx.strokeStyle = '#4b5563'; ctx.fillStyle = '#000';
-        ctx.font = "10px Arial";
+        ctx.lineWidth = 1; ctx.strokeStyle = '#4b5563'; ctx.fillStyle = '#000'; ctx.font = "10px Arial";
         for(let i = 0; i <= 35; i+=5) {
             let y = baseY + (i * pxPerMm);
-            ctx.beginPath();
-            ctx.moveTo(x, y); ctx.lineTo(x + 8, y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 8, y); ctx.stroke();
             if (i % 10 === 0 || i === 0) ctx.fillText(i, x + 13, y + 3);
         }
 
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.moveTo(x - 2, currentY); ctx.lineTo(x - 14, currentY - 5); ctx.lineTo(x - 14, currentY + 5);
-        ctx.fill();
-        ctx.font = "bold 11px Arial";
-        ctx.fillText("ΔL", x - 34, currentY + 4);
+        ctx.fillStyle = '#ef4444'; ctx.beginPath();
+        ctx.moveTo(x - 2, currentY); ctx.lineTo(x - 14, currentY - 5); ctx.lineTo(x - 14, currentY + 5); ctx.fill();
+        ctx.font = "bold 11px Arial"; ctx.fillText("ΔL", x - 34, currentY + 4);
     }
 
     function drawArrow(ctx, fromx, fromy, tox, toy) {
-        var headlen = 10; 
-        var dx = tox - fromx; var dy = toy - fromy;
+        var headlen = 10; var dx = tox - fromx; var dy = toy - fromy;
         var angle = Math.atan2(dy, dx);
         ctx.beginPath(); ctx.lineWidth = 2.5;
         ctx.moveTo(fromx, fromy); ctx.lineTo(tox, toy);
@@ -484,156 +437,93 @@
         ctx.stroke();
     }
 
-    // --- ĐỒ HỌA BIỂU ĐỒ ---
     function drawGraphCanvas() {
-        const w = canvasGraph.width;
-        const h = canvasGraph.height;
+        const w = canvasGraph.width; const h = canvasGraph.height;
         ctxG.clearRect(0, 0, w, h);
 
-        const padLeft = 75;
-        const padBottom = 60;
-        const padTop = 30;
-        const padRight = 50; 
-        const graphW = w - padLeft - padRight;
-        const graphH = h - padBottom - padTop;
-
+        const padLeft = 75; const padBottom = 60; const padTop = 30; const padRight = 50; 
+        const graphW = w - padLeft - padRight; const graphH = h - padBottom - padTop;
         const maxRealX = 0.3 * state.L0;
-        
-        // Cập nhật trục tung sử dụng state.yAxisMax (40000 hoặc 50000)
         const maxScaleY = state.yAxisMax;
 
         const mapX = (realX) => padLeft + (realX / maxRealX) * graphW;
         const mapY = (y) => h - padBottom - (y / maxScaleY) * graphH;
 
-        // Vẽ Grid
-        ctxG.strokeStyle = '#f1f5f9';
-        ctxG.lineWidth = 1;
-        ctxG.beginPath();
-        for(let i = 0; i <= maxRealX; i+=5) {
-            ctxG.moveTo(mapX(i), padTop); ctxG.lineTo(mapX(i), h - padBottom);
-        }
-        
-        // Vẽ lưới ngang theo chuẩn 10000, 20000... cố định
-        for(let yVal = 0; yVal <= state.yAxisMax; yVal += 10000) {
-            ctxG.moveTo(padLeft, mapY(yVal)); ctxG.lineTo(padLeft + graphW, mapY(yVal));
-        }
+        ctxG.strokeStyle = '#f1f5f9'; ctxG.lineWidth = 1; ctxG.beginPath();
+        for(let i = 0; i <= maxRealX; i+=5) { ctxG.moveTo(mapX(i), padTop); ctxG.lineTo(mapX(i), h - padBottom); }
+        for(let yVal = 0; yVal <= state.yAxisMax; yVal += 10000) { ctxG.moveTo(padLeft, mapY(yVal)); ctxG.lineTo(padLeft + graphW, mapY(yVal)); }
         ctxG.stroke();
 
-        ctxG.strokeStyle = '#334155'; ctxG.lineWidth = 2;
-        ctxG.beginPath();
+        ctxG.strokeStyle = '#334155'; ctxG.lineWidth = 2; ctxG.beginPath();
         drawArrow(ctxG, padLeft, h - padBottom, w - 20, h - padBottom); 
         drawArrow(ctxG, padLeft, h - padBottom, padLeft, padTop - 20); 
         
         ctxG.fillStyle = '#1e293b'; ctxG.font = "bold 13px Arial"; ctxG.textAlign = "center";
         ctxG.fillText("Biến dạng dài ΔL (mm)", padLeft + graphW / 2, h - 15);
         
-        ctxG.save();
-        ctxG.translate(22, padTop + graphH / 2); ctxG.rotate(-Math.PI / 2);
-        ctxG.fillText("Lực kéo dọc P (N)", 0, 0);
-        ctxG.restore();
+        ctxG.save(); ctxG.translate(22, padTop + graphH / 2); ctxG.rotate(-Math.PI / 2);
+        ctxG.fillText("Lực kéo dọc P (N)", 0, 0); ctxG.restore();
 
         ctxG.font = "11px Arial"; ctxG.textAlign = "center";
-        for(let i = 0; i <= maxRealX; i+=5) {
-            ctxG.fillText(i.toFixed(0), mapX(i), h - padBottom + 16);
-        }
+        for(let i = 0; i <= maxRealX; i+=5) { ctxG.fillText(i.toFixed(0), mapX(i), h - padBottom + 16); }
         
         ctxG.textAlign = "right";
-        // Ghi nhãn trục Y chuẩn
-        for(let yVal = 0; yVal <= state.yAxisMax; yVal += 10000) {
-            ctxG.fillText(yVal, padLeft - 8, mapY(yVal) + 4);
-        }
+        for(let yVal = 0; yVal <= state.yAxisMax; yVal += 10000) { ctxG.fillText(yVal, padLeft - 8, mapY(yVal) + 4); }
 
         let currX = state.xBase * state.scaleL;
         let currY = getPBase(state.xBase) * state.scaleF;
 
         if (state.xBase > 0) {
             ctxG.lineWidth = 3;
-            
-            // Lấy danh sách điểm cần vẽ: Từ 0 nhảy mỗi step, và kết thúc chính xác tại tọa độ state.xBase hiện tại
-            let step = 0.04;
-            let points = [];
-            for (let xB = 0; xB <= state.xBase; xB += step) {
-                points.push(xB);
-            }
-            // Đảm bảo nét nối liền mạch chính xác tới chấm đỏ (tránh độ trễ khi vận tốc nhỏ)
-            if (points.length === 0 || points[points.length - 1] < state.xBase) {
-                points.push(state.xBase);
-            }
+            let step = 0.04; let points = [];
+            for (let xB = 0; xB <= state.xBase; xB += step) points.push(xB);
+            if (points.length === 0 || points[points.length - 1] < state.xBase) points.push(state.xBase);
 
-            ctxG.beginPath();
-            ctxG.moveTo(mapX(0), mapY(0));
+            ctxG.beginPath(); ctxG.moveTo(mapX(0), mapY(0));
             
             for (let i = 1; i < points.length; i++) {
-                let xB = points[i];
-                let pB = getPBase(xB);
-                let realX = xB * state.scaleL;
-                let realY = pB * state.scaleF;
+                let xB = points[i]; let pB = getPBase(xB);
+                let realX = xB * state.scaleL; let realY = pB * state.scaleF;
 
                 if (xB <= 0.46) ctxG.strokeStyle = '#2563eb';      
                 else if (xB <= 4.5) ctxG.strokeStyle = '#d97706';    
                 else if (xB <= 20) ctxG.strokeStyle = '#16a34a';   
                 else ctxG.strokeStyle = '#dc2626';                 
 
-                ctxG.lineTo(mapX(realX), mapY(realY));
-                ctxG.stroke();
+                ctxG.lineTo(mapX(realX), mapY(realY)); ctxG.stroke();
                 
-                // Mở path mới nối từ tọa độ vừa vẽ cho đoạn tiếp theo (nếu có)
                 if (i < points.length - 1) {
-                    ctxG.beginPath(); 
-                    ctxG.moveTo(mapX(realX), mapY(realY));
+                    ctxG.beginPath(); ctxG.moveTo(mapX(realX), mapY(realY));
                 }
             }
             
-            // Vẽ điểm đỏ tại tọa độ chính xác hiện tại
             if (state.xBase < CONSTANTS.MAX_X_BASE) {
                 ctxG.fillStyle = '#ef4444';
                 ctxG.beginPath(); ctxG.arc(mapX(currX), mapY(currY), 5, 0, Math.PI*2); ctxG.fill();
             } else {
-                ctxG.strokeStyle = '#ef4444'; ctxG.lineWidth = 3;
-                ctxG.beginPath();
+                ctxG.strokeStyle = '#ef4444'; ctxG.lineWidth = 3; ctxG.beginPath();
                 ctxG.moveTo(mapX(currX)-6, mapY(currY)-6); ctxG.lineTo(mapX(currX)+6, mapY(currY)+6);
                 ctxG.moveTo(mapX(currX)+6, mapY(currY)-6); ctxG.lineTo(mapX(currX)-6, mapY(currY)+6);
                 ctxG.stroke();
             }
 
-            // --- VẼ TOOLTIP NỔI BÁM THEO ĐIỂM CHẤM ---
-            let px = mapX(currX);
-            let py = mapY(currY);
+            let px = mapX(currX); let py = mapY(currY);
+            let boxW = 85; let boxH = 40; let offsetX = 12; let offsetY = -10;
 
-            let boxW = 85;
-            let boxH = 40;
-            let offsetX = 12; // Mặc định lệch phải
-            let offsetY = -10; // Lệch lên một chút
-
-            // Căn chỉnh nếu trôi ra ngoài lề
-            if (px + offsetX + boxW > padLeft + graphW + 10) offsetX = -boxW - 12; // Căn trái
-            if (py + offsetY < padTop) offsetY = 12; // Căn xuống dưới
+            if (px + offsetX + boxW > padLeft + graphW + 10) offsetX = -boxW - 12; 
+            if (py + offsetY < padTop) offsetY = 12; 
             if (py + offsetY + boxH > h - padBottom) offsetY = -boxH - 12;
 
-            let tX = px + offsetX;
-            let tY = py + offsetY;
+            let tX = px + offsetX; let tY = py + offsetY;
 
-            // Vẽ nền hộp thoại (tooltip)
-            ctxG.fillStyle = 'rgba(255, 255, 255, 0.92)';
-            ctxG.strokeStyle = '#94a3b8';
-            ctxG.lineWidth = 1;
+            ctxG.fillStyle = 'rgba(255, 255, 255, 0.92)'; ctxG.strokeStyle = '#94a3b8'; ctxG.lineWidth = 1;
             ctxG.beginPath();
-            if (ctxG.roundRect) {
-                ctxG.roundRect(tX, tY, boxW, boxH, 4);
-            } else {
-                ctxG.rect(tX, tY, boxW, boxH);
-            }
-            ctxG.fill();
-            ctxG.stroke();
+            if (ctxG.roundRect) ctxG.roundRect(tX, tY, boxW, boxH, 4); else ctxG.rect(tX, tY, boxW, boxH);
+            ctxG.fill(); ctxG.stroke();
 
-            // Hiển thị chữ cho Tooltip
-            ctxG.fillStyle = '#dc2626'; // Đỏ (P)
-            ctxG.font = 'bold 11px Arial';
-            ctxG.textAlign = 'left';
+            ctxG.fillStyle = '#dc2626'; ctxG.font = 'bold 11px Arial'; ctxG.textAlign = 'left';
             ctxG.fillText(`P: ${Math.round(currY)} N`, tX + 6, tY + 16);
-
-            ctxG.fillStyle = '#2563eb'; // Xanh (dL)
-            ctxG.fillText(`ΔL: ${currX.toFixed(2)} mm`, tX + 6, tY + 31);
+            ctxG.fillStyle = '#2563eb'; ctxG.fillText(`ΔL: ${currX.toFixed(2)} mm`, tX + 6, tY + 31);
         }
 
         updateAnnotations();
@@ -648,14 +538,10 @@
     }
 
     function drawAll() {
-        // Cập nhật giá trị hiển thị bên bảng điều khiển
         const realDeltaL = state.xBase * state.scaleL;
         const currentP = getPBase(state.xBase) * state.scaleF;
 
-        // KIỂM TRA ĐIỀU KIỆN TRỤC TUNG: Nhảy từ 40000 lên 50000
-        if (currentP > 40000 && state.yAxisMax === 40000) {
-            state.yAxisMax = 50000;
-        }
+        if (currentP > 40000 && state.yAxisMax === 40000) state.yAxisMax = 50000;
 
         drawSpecimenCanvas();
         drawGraphCanvas();
@@ -668,16 +554,8 @@
         if (!state.isRunning) return;
 
         let dx_per_frame;
-        
-        // Phân rã tốc độ theo từng giai đoạn
-        if (state.xBase <= 0.46) {
-            // Giai đoạn đàn hồi: Vẽ chậm lại (khoảng 10s cho tốc độ 1000 N/s)
-            // 10s * 60fps = 600 frames. Quãng đường 0.46 -> dx = 0.46 / 600 = 0.000766
-            dx_per_frame = (state.forceSpeed / 1000) * 0.000766; 
-        } else {
-            // Giai đoạn sau: Giữ nguyên quy luật vẽ cũ
-            dx_per_frame = (state.forceSpeed / 150000); 
-        }
+        if (state.xBase <= 0.46) dx_per_frame = (state.forceSpeed / 1000) * 0.000766; 
+        else dx_per_frame = (state.forceSpeed / 150000); 
 
         state.xBase += dx_per_frame;
 
@@ -687,6 +565,11 @@
             state.isFinished = true;
             btnStart.disabled = true;
             btnPause.disabled = true;
+            
+            // Hiện nút đo sau khi kéo đứt
+            btnMeasureAfter.disabled = false;
+            btnMeasureAfter.classList.remove('opacity-50', 'cursor-not-allowed');
+
             drawAll(); 
             return;
         }
@@ -696,12 +579,9 @@
     }
 
     function readInputs() {
+        // Mặc định scale = 1 để vẽ hình khi chưa có số liệu, nhưng không ghi đè số liệu hiển thị
         state.d = parseFloat(inputD.value) || 10;
         state.L0 = parseFloat(inputL0.value) || 100;
-        if (state.d < 9) state.d = 9; if (state.d > 11) state.d = 11;
-        if (state.L0 < 100) state.L0 = 100; if (state.L0 > 120) state.L0 = 120;
-        inputD.value = state.d.toFixed(2);
-        inputL0.value = state.L0.toFixed(1);
 
         state.scaleF = Math.pow(state.d / 10, 2);
         state.scaleL = state.L0 / 100;
@@ -712,28 +592,61 @@
         state.isFinished = false;
         cancelAnimationFrame(animationFrameId);
         state.xBase = 0;
-        
-        // Trả trục tung về 40000 mỗi lần làm lại
         state.yAxisMax = 40000;
-        
         state.breakRatio = Math.random() * (0.666 - 0.333) + 0.333; 
         
-        inputD.disabled = false;
-        inputL0.disabled = false;
-        btnStart.disabled = false;
+        // Reset hệ thống đo đạc
+        state.isMeasuredBefore = false;
+        state.isMeasuredAfter = false;
+        inputD.value = "";
+        inputL0.value = "";
+        
+        // Cài đặt lại trạng thái Nút bấm
+        btnStart.disabled = true; // Khóa tới khi đo xong
         btnPause.disabled = true;
+        
+        btnMeasureBefore.disabled = false;
+        btnMeasureBefore.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        btnMeasureAfter.disabled = true;
+        btnMeasureAfter.classList.add('opacity-50', 'cursor-not-allowed');
         
         readInputs();
         drawAll();
     }
 
+    // --- SỰ KIỆN NÚT ĐO KÍCH THƯỚC LẦN 1 ---
+    btnMeasureBefore.addEventListener('click', () => {
+        // Sinh giá trị ngẫu nhiên cho đường kính d0 (từ 9mm đến 11mm)
+        const randD = (Math.random() * (11 - 9) + 9).toFixed(2);
+        
+        // Theo tiêu chuẩn mẫu tỷ lệ dài: L0 = 10 * d0
+        const randL0 = (parseFloat(randD) * 10).toFixed(1);
+        
+        inputD.value = randD;
+        inputL0.value = randL0;
+        
+        state.isMeasuredBefore = true;
+        
+        // Khóa nút đo đạc, mở khóa Bắt Đầu
+        btnMeasureBefore.disabled = true;
+        btnMeasureBefore.classList.add('opacity-50', 'cursor-not-allowed');
+        btnStart.disabled = false;
+        
+        readInputs();
+        drawAll();
+    });
+
+    // --- SỰ KIỆN NÚT ĐO KÍCH THƯỚC LẦN 2 ---
+    btnMeasureAfter.addEventListener('click', () => {
+        state.isMeasuredAfter = true;
+        btnMeasureAfter.disabled = true;
+        btnMeasureAfter.classList.add('opacity-50', 'cursor-not-allowed');
+        drawAll();
+    });
+
     btnStart.addEventListener('click', () => {
         if (state.isFinished) return;
-        if (state.xBase === 0) {
-            readInputs(); 
-            inputD.disabled = true;
-            inputL0.disabled = true;
-        }
         state.isRunning = true;
         state.forceSpeed = parseFloat(speedSlider.value);
         btnStart.disabled = true;
@@ -754,9 +667,6 @@
         state.forceSpeed = parseFloat(e.target.value);
         valSpeed.textContent = state.forceSpeed;
     });
-
-    inputD.addEventListener('change', () => { readInputs(); drawAll(); });
-    inputL0.addEventListener('change', () => { readInputs(); drawAll(); });
 
     setTimeout(() => {
         resizeCanvases();
